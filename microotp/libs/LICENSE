@@ -1,0 +1,14 @@
+HMAC & B32DEC libraries are fork of:
+- https://github.com/micropython/micropython
+
+Check file comments.
+
+---------------------------------------------------------------
+
+OTP (otp.py) code _inspired_ by:
+
+- https://github.com/pyotp/pyotp
+
+Copyright (C) 2011-2016 Mark Percival <m@mdp.im>,
+Nathan Reynolds <email@nreynolds.co.uk>, and PyOTP contributors
+
