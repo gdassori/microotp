@@ -14,7 +14,7 @@ Google Authenticator is a great tool, but if you really go in paranoid mode, the
 Project aim is to provide a banking grade security, long-lasting, OTP generators, that easy fit in your pocket,
 with schematics and everything you need to build it by yourself.
 
-The prototype comes with a micropython implementation of RFC 4226 (HOTP: An HMAC-Based One-Time Password Algorithm)
+It comes with a client-side only implementation of RFC 4226 (HOTP: An HMAC-Based One-Time Password Algorithm)
 and RFC 6238 (TOTP: Time-Based One-Time Password Algorithm).
 
 
