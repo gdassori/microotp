@@ -32,11 +32,11 @@ At this very moment the project supports:
 - MicroPython 1.8.7
 - Ai-Thinker ESP01 (1MB)
 - SSD1306 I2C 128x64
+- TinyRTC DS1307
 
 TODO
 ----
 
-- I2C RTC
 - Support Apps (Mobile, Desktop, Browsers)
 - Schematics
 - Multiplatform build scripts
