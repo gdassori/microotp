@@ -9,3 +9,4 @@ ampy -p /dev/ttyUSB0 put microotp/storage.py
 ampy -p /dev/ttyUSB0 put microotp/views.py
 ampy -p /dev/ttyUSB0 put microotp/wifi.py
 ampy -p /dev/ttyUSB0 put microotp/libs/urtc.py
+ampy -p /dev/ttyUSB0 put microotp/libs/ssd1306.py

@@ -3,7 +3,6 @@
 # MIT License
 
 import utime
-
 from settings import OTP_SESSION
 
 
@@ -56,7 +55,7 @@ class Owner:
                     )
                     self.data_changed = self._core.setup_mode()
                     return self.data_changed
-                utime.sleep(0.3)
+                utime.sleep(0.5)
 
     def show_current_otp(self):
         start = utime.time()
@@ -64,7 +63,7 @@ class Owner:
             self._core.show(
                 self._views['otp'](self._core.otp)
             )
-            utime.sleep(1)
+            utime.sleep(0.5)
 
     def sleep(self):
         self._core.turn_off()

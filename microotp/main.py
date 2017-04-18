@@ -2,9 +2,6 @@
 # Copyright (C) 2016 Guido Dassori <guido.dassori@gmail.com>
 # MIT License
 
-#import sys
-#sys.path.insert('./libs', 0)
-
 from settings import BUILD, STORAGE_FILE
 from machine import I2C, Pin
 from core import Core
@@ -14,12 +11,12 @@ from states import init
 from storage import Storage
 from views import Views
 from wifi import WiFi
-import urtc
+from urtc import DS1307
 
 
 bus = I2C(-1, Pin(2), Pin(0))
 display = SSD1306_I2C(128, 32, bus)
-rtc = urtc.DS1307(bus)
+rtc = DS1307(bus)
 
 local_storage = Storage(STORAGE_FILE)
 network = WiFi()
