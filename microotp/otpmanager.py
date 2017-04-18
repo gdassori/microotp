@@ -8,7 +8,7 @@ import utime
 class OTPManager():
     def __init__(self, otp_list, pos):
         self.otp_list = otp_list
-        self.pos = pos
+        self.pos = pos < len(self.otp_list) and pos or 0
 
     def next_otp(self):
         return OTPManager(

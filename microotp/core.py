@@ -9,13 +9,14 @@ from otpmanager import OTPManager
 
 
 class Core():
-    def __init__(self, display, network, storage_manager, keypad=None):
+    def __init__(self, display, network, storage_manager, rtc, keypad=None):
         self._display = display
         self._network = network
         self._storage_manager = storage_manager
         self._keypad = keypad
         self._last_view = dict()
         self._last_otp = 0
+        self._rtc = rtc
         self._otp_storage = None
         self.otp = None
 
@@ -27,7 +28,10 @@ class Core():
         return self
 
     def load_otp(self):
-        self._last_otp = self._storage_manager.btree.get('last_otp') or 0
+        try:
+            self._last_otp = int(chr(self._rtc.memory(1)))
+        except ValueError:
+            self._last_otp = 0
         self.otp = OTPManager(self._storage['otp']['rows'], int(self._last_otp))
 
     def get_network_token(self):
@@ -37,7 +41,7 @@ class Core():
 
     def load_next_otp(self):
         self.otp = self.otp.next_otp()
-        self._storage_manager.btree.set('last_otp', self.otp.pos)
+        self._rtc.memory(1, str(self.otp.pos))
 
     def _format_datetime(self, datetime):
         return "{}-{}-{} {}:{}:{}".format(str(datetime[0])[2:],
@@ -55,7 +59,7 @@ class Core():
                     print('Show text ( {} ) on line ( {} )'.format(view[line], coords[line]))
                 self._display.text(view[line], coords[line][0], coords[line][1])
             datestring = self._format_datetime(
-                machine.RTC().datetime(),
+                self._rtc and self._rtc.datetime(),
             )
             if 'line0' not in view:
                 self._display.text(datestring, coords['line0'][0], coords['line0'][01])

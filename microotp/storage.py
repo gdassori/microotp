@@ -4,29 +4,6 @@
 
 import os
 import json
-import btree
-
-
-class BTree():
-    def __init__(self):
-        self.file = 'btree.db'
-        self._intent_prefix = '~'
-
-    def get(self, value):
-        try:
-            with open(self.file, 'r+b') as f:
-                db = btree.open(f)
-                value = db[value]
-            return value.decode()
-        except:
-            return None
-
-    def set(self, key, value):
-        with open(self.file, 'w+b') as f:
-            db = btree.open(f)
-            db[key.encode()] = str(value).encode()
-            db.flush()
-
 
 class Storage():
     def __init__(self, file):
@@ -54,7 +31,3 @@ class Storage():
         with open(self._intent_prefix + self.file, 'w') as f:
             f.write(s)
         os.rename(self._intent_prefix + self.file, self.file)
-
-    @property
-    def btree(self):
-        return BTree()

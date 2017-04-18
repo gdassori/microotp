@@ -14,17 +14,17 @@ from states import init
 from storage import Storage
 from views import Views
 from wifi import WiFi
-
-
+import urtc
 
 
 bus = I2C(-1, Pin(2), Pin(0))
 display = SSD1306_I2C(128, 32, bus)
+rtc = urtc.DS1307(bus)
 
 local_storage = Storage(STORAGE_FILE)
 network = WiFi()
 network.disable() # ensure wifi is off
-core = Core(display, network, local_storage)
+core = Core(display, network, local_storage, rtc)
 owner = Owner(core, Views)
 
 init_state = init()
