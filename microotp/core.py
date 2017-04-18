@@ -71,4 +71,5 @@ class Core():
     def turn_off(self):
         self._display.poweroff()
         if DEEPSLEEP:
+            print('Going into deepsleep')
             machine.deepsleep()

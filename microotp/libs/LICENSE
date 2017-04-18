@@ -12,3 +12,13 @@ OTP (otp.py) code _inspired_ by:
 Copyright (C) 2011-2016 Mark Percival <m@mdp.im>,
 Nathan Reynolds <email@nreynolds.co.uk>, and PyOTP contributors
 
+---------------------------------------------------------------
+
+URTC (urtc.py):
+
+- https://github.com/adafruit/Adafruit-uRTC
+
+The MIT License (MIT)
+Copyright (c) 2016 Radomir Dopieralski, written for Adafruit Industries
+
+---------------------------------------------------------------
