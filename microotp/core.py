@@ -4,7 +4,9 @@
 
 import os
 import machine
-from settings import DEEPSLEEP
+
+from views import format_datetime, DATETIME_LINE
+from settings import DEEPSLEEP, DEBUG
 from otpmanager import OTPManager
 
 
@@ -22,7 +24,7 @@ class Core():
 
     def load(self):
         self._storage = self._storage_manager.get_or_create()
-        print('Loaded storage: {}'.format(self._storage))
+        print(DEBUG and 'Loaded storage: {}'.format(self._storage))
         if self._storage.get('otp'):
             self.load_otp()
         return self
@@ -43,26 +45,18 @@ class Core():
         self.otp = self.otp.next_otp()
         self._rtc.memory(1, str(self.otp.pos))
 
-    def _format_datetime(self, datetime):
-        return "{}-{}-{} {}:{}:{}".format(str(datetime[0])[2:],
-                                          datetime[1],
-                                          datetime[2],
-                                          datetime[4],
-                                          datetime[5],
-                                          datetime[6])
+
     def show(self, view):
         self._display.fill(0)
         if view:
             coords = dict(line0=(0,0), line1=(0,12), line2=(0, 24), line2b=(64,24))
             for line in view:
-                if not self._last_view or self._last_view.get(line) != view[line]:
+                if DEBUG and not self._last_view or self._last_view.get(line) != view[line]:
                     print('Show text ( {} ) on line ( {} )'.format(view[line], coords[line]))
                 self._display.text(view[line], coords[line][0], coords[line][1])
-            datestring = self._format_datetime(
-                self._rtc and self._rtc.datetime(),
-            )
-            if 'line0' not in view:
-                self._display.text(datestring, coords['line0'][0], coords['line0'][01])
+            datestring = format_datetime(self._rtc and self._rtc.datetime())
+            if DATETIME_LINE not in view:
+                self._display.text(datestring, coords[DATETIME_LINE][0], coords[DATETIME_LINE][1])
         self._last_view = view
         self._display.show()
 
@@ -75,5 +69,5 @@ class Core():
     def turn_off(self):
         self._display.poweroff()
         if DEEPSLEEP:
-            print('Going into deepsleep')
+            print(DEBUG and 'Going into deepsleep')
             machine.deepsleep()
