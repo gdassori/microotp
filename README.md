@@ -17,8 +17,6 @@ with schematics and everything you need to build it by yourself.
 It comes with a client-side only implementation of RFC 4226 (HOTP: An HMAC-Based One-Time Password Algorithm)
 and RFC 6238 (TOTP: Time-Based One-Time Password Algorithm).
 
-
-
 Quick features overview
 -----------------------
 
@@ -30,9 +28,9 @@ Support
 At this very moment the project supports:
 
 - MicroPython 1.8.7
-- Ai-Thinker ESP01 (1MB)
+- Ai-Thinker ESP12
 - SSD1306 I2C 128x64
-- TinyRTC DS1307
+- DS3231 RTC
 
 TODO
 ----
@@ -41,3 +39,6 @@ TODO
 - Schematics
 - Multiplatform build scripts
 - STL Files
+
+
+![microotp breadboard](https://github.com/gdassori/microotp/raw/master/docs/img/microotp-breadboard.jpg)
