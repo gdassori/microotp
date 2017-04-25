@@ -2,6 +2,7 @@
 # Copyright (C) 2016 Guido Dassori <guido.dassori@gmail.com>
 # MIT License
 
+
 import os
 import machine
 
@@ -19,7 +20,6 @@ class Core():
         self._last_view = dict()
         self._last_otp = 0
         self._rtc = rtc
-        self._otp_storage = None
         self.otp = None
 
     def load(self):

@@ -3,6 +3,7 @@
 # MIT License
 
 import utime
+import otp
 
 
 class OTPManager():
@@ -29,7 +30,11 @@ class OTPManager():
 
     @property
     def code(self):
-        return self.otp_list[self.pos]['seed'] # TODO
+        if self.otp_list[self.pos].get('type', 'TOTP') == 'OTP':
+            totp = otp.TOTP(self.otp_list[self.pos]['seed'])
+        else:
+            totp = otp.TOTP(self.otp_list[self.pos]['seed'])
+        return totp.generate_otp()
 
     @property
     def alias(self):
