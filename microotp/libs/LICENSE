@@ -1,11 +1,11 @@
-HMAC & B32DEC libraries are fork of:
+HMAC library (hmac.py) fork of:
 - https://github.com/micropython/micropython
 
 Check file comments.
 
 ---------------------------------------------------------------
 
-OTP (otp.py) code _inspired_ by:
+OTP (otp.py) code inspired by:
 
 - https://github.com/pyotp/pyotp
 

@@ -48,12 +48,12 @@ class OTP(object):
         return str_code
 
     def byte_secret(self):
-        from b32dec import b32decode
+        from ubinascii import unhexlify
         missing_padding = len(self.secret) % 8
         if missing_padding != 0:
             self.secret += '=' * (8 - missing_padding)
-        res = b32decode(self.secret, casefold=True)
-        del b32decode, missing_padding
+        res = unhexlify(self.secret)
+        del unhexlify, missing_padding
         collect()
         return res
 
