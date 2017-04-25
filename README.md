@@ -20,25 +20,32 @@ and RFC 6238 (TOTP: Time-Based One-Time Password Algorithm).
 Quick features overview
 -----------------------
 
-WIP
+- Generate OTP tokens as Google Authenticator App and others would do
+- Compliant with SSH, Bitcoin exchanges, Google Apps, etc.
+- Handle multiple secrets and multiple tokens generation
+- Always ready, OTP in <1s
 
-Support
--------
+Hardware
+--------
 
-At this very moment the project supports:
-
-- MicroPython 1.8.7
 - Ai-Thinker ESP12
 - SSD1306 I2C 128x64
 - DS3231 RTC
 
-TODO
-----
+Build requirements
+------------------
+- ESP12 with Micropython v1.8.7
+- adafruit-ampy
+- mpy-cross v1.8.7
+
+Goals
+-----
 
 - Support Apps (Mobile, Desktop, Browsers)
 - Schematics
-- Multiplatform build scripts
 - STL Files
+- Pocket sizing
+
 
 
 ![microotp breadboard](https://github.com/gdassori/microotp/raw/master/docs/img/microotp-breadboard.jpg)
