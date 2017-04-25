@@ -4,7 +4,8 @@
 
 
 from settings import WIFI_TIMEOUT, NET_GATEWAY, NET_IP, NET_NETMASK, NET_DNS, NET_SSID
-import network
+from network import STA_IF, WLAN
+from gc import collect
 
 
 class WiFiContext():
@@ -23,20 +24,28 @@ class WiFiContext():
 class WiFi():
     def __init__(self):
         self.timeout = 60
-        self.token = None
-        self.net = network.WLAN(network.STA_IF)
+        self.net = WLAN(STA_IF)
         self._ssid = self._password = None
+        self.token = None
 
-    def _get_network(self, _):
+    def _get_network(self):
         raise NotImplementedError
 
-    def Context(self, token, timeout):
+    def get_network_token(self):
+        from os import urandom
+        r = str(int.from_bytes(urandom(2), 'little'))
+        t = '0' * (4 - len(r)) + r
+        del urandom, r
+        collect()
+        return t[:4]
+
+    def Context(self, timeout):
         self.timeout = timeout
-        self.token = token
+        self.token = self.get_network_token()
         if NET_SSID:
             self._ssid, self._password = NET_SSID.split('|')
         else:
-            self._get_network(token)
+            self._get_network()
         return WiFiContext(self)
 
     @property
@@ -55,8 +64,12 @@ class WiFi():
         self.net.connect(ssid, password)
 
     def disable(self):
+        from gc import collect
+        from network import AP_IF
         self.net.active(False)
-        network.WLAN(network.AP_IF).active(False) # Always ensure AP is disabled
+        WLAN(AP_IF).active(False) # Always ensure AP is disabled
+        del AP_IF
+        collect()
 
     def send_data(self, topic, data):
         pass

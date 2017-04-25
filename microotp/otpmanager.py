@@ -2,40 +2,33 @@
 # Copyright (C) 2016 Guido Dassori <guido.dassori@gmail.com>
 # MIT License
 
-import utime
-import otp
+from gc import collect
 
 
 class OTPManager():
-    def __init__(self, otp_list, pos):
-        self.otp_list = otp_list
-        self.pos = pos < len(self.otp_list) and pos or 0
+    def __init__(self, otp_data):
+        self.otp_data = otp_data
 
-    def next_otp(self):
-        return OTPManager(
-            self.otp_list,
-            not self.pos+1 >= len(self.otp_list) and self.pos +1 or 0
-        )
+    def get_ttl(self):
+        from utime import time
+        now = time()
+        res = (now + (30 - now % 30)) - now
+        del time, now
+        collect()
+        return res
 
-    def prev_otp(self):
-        return OTPManager(
-            self.otp_list,
-            not self.pos-1 < 0 and self.pos-1 or len(self.otp_list)-1
-        )
-
-    @property
-    def ttl(self):
-        now = utime.time()
-        return (now + (30 - now % 30)) - now
-
-    @property
-    def code(self):
-        if self.otp_list[self.pos].get('type', 'TOTP') == 'OTP':
-            totp = otp.TOTP(self.otp_list[self.pos]['seed'])
+    def get_code(self):
+        if self.otp_data.get('type', 'TOTP') == 'OTP':
+            from otp import OTP as O
+            totp = O(self.otp_data['seed'])
+            res = totp.generate_otp(self.otp_data['input'])
         else:
-            totp = otp.TOTP(self.otp_list[self.pos]['seed'])
-        return totp.generate_otp()
+            from otp import TOTP as O
+            totp = O(self.otp_data['seed'])
+            res = totp.now()
+        del O, totp
+        collect()
+        return res
 
-    @property
-    def alias(self):
-        return self.otp_list[self.pos]['alias']
+    def get_alias(self):
+        return self.otp_data['alias']

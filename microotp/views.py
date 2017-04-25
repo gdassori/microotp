@@ -21,19 +21,18 @@ Views = dict(
             line1='Setup mode',
         )
     ),
-    otp = lambda otp: dict(
-        line1='{}'.format(otp.alias),
-        line2='{}'.format(otp.code),
-        line2b=rem(30, otp.ttl)
+    otp = lambda otp_tuple: dict(
+        line1='{}'.format(otp_tuple[0]),
+        line2='{}'.format(otp_tuple[1]),
+        line2b=rem(30, otp_tuple[2])
     )
 )
 
-def format_datetime(datetime):
-    return "{}-{}-{} {}:{}:{}".format(
-        str(datetime[0])[2:],
-        datetime[1],
-        datetime[2],
-        datetime[4],
-        datetime[5],
-        datetime[6]
-    )
+def get_datestring():
+    from gc import collect
+    from machine import RTC
+    d = RTC().datetime()
+    del RTC
+    res = "{}-{}-{} {}:{}:{}".format(str(d[0])[2:], d[1], d[2], d[4], d[5], d[6])
+    collect()
+    return res

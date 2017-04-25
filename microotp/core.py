@@ -3,71 +3,73 @@
 # MIT License
 
 
-import os
-import machine
-
-from views import format_datetime, DATETIME_LINE
-from settings import DEEPSLEEP, DEBUG
-from otpmanager import OTPManager
+from views import DATETIME_LINE
+from settings import DEEPSLEEP
+from gc import collect as gcc
+from micropython import mem_info # DEBUG MODE
 
 
 class Core():
-    def __init__(self, display, network, storage_manager, rtc, keypad=None):
-        self._display = display
-        self._network = network
-        self._storage_manager = storage_manager
-        self._keypad = keypad
+    def __init__(self):
         self._last_view = dict()
-        self._last_otp = 0
-        self._rtc = rtc
-        self.otp = None
+        self._current_otp = 0
+        self.jsondata = None
+
+    @property
+    def ready(self):
+        return bool(self.jsondata)
 
     def load(self):
-        self._storage = self._storage_manager.get_or_create()
-        print(DEBUG and 'Loaded storage: {}'.format(self._storage))
-        if self._storage.get('otp'):
-            self.load_otp()
+        from storage import Storage as S
+        from settings import STORAGE_FILE
+        self.jsondata = S(STORAGE_FILE).get_or_create()
+        del S, STORAGE_FILE
+        gcc()
         return self
 
-    def load_otp(self):
-        try:
-            self._last_otp = int(chr(self._rtc.memory(1)))
-        except ValueError:
-            self._last_otp = 0
-        self.otp = OTPManager(self._storage['otp']['rows'], int(self._last_otp))
+    def get_otp_tuple(self):
+        if not self.jsondata:
+            raise ValueError()
+        print('aaaa ', mem_info())
+        from otpmanager import OTPManager as OTPM
+        print('bbbb ', mem_info())
+        otp = OTPM(self.jsondata['otp']['rows'][self._current_otp])
+        print('cccc', mem_info())
+        otptuple = (
+            otp.get_alias(),
+            otp.get_code(),
+            otp.get_ttl()
+        )
+        print('dddd', mem_info())
+        del otp, OTPM
+        print('eeee', mem_info())
+        gcc()
+        print('ffff', mem_info())
+        return otptuple
 
-    def get_network_token(self):
-        r = str(int.from_bytes(os.urandom(2), 'little'))
-        t = '0' * (4 - len(r)) + r
-        return t[:4]
-
-    def load_next_otp(self):
-        self.otp = self.otp.next_otp()
-        self._rtc.memory(1, str(self.otp.pos))
-
-
-    def show(self, view):
-        self._display.fill(0)
+    def show(self, display, view):
+        display.fill(0)
         if view:
+            from views import get_datestring as gds
             coords = dict(line0=(0,0), line1=(0,12), line2=(0, 24), line2b=(64,24))
             for line in view:
-                if DEBUG and not self._last_view or self._last_view.get(line) != view[line]:
-                    print('Show text ( {} ) on line ( {} )'.format(view[line], coords[line]))
-                self._display.text(view[line], coords[line][0], coords[line][1])
-            datestring = format_datetime(self._rtc and self._rtc.datetime())
+                display.text(view[line], coords[line][0], coords[line][1])
+            datestring = gds()
             if DATETIME_LINE not in view:
-                self._display.text(datestring, coords[DATETIME_LINE][0], coords[DATETIME_LINE][1])
+                display.text(datestring, coords[DATETIME_LINE][0], coords[DATETIME_LINE][1])
+            del gds, coords, datestring
+            gcc()
         self._last_view = view
-        self._display.show()
-
-    def get_network(self, token, timeout=None):
-        return self._network.Context(token, timeout)
+        display.show()
 
     def setup_mode(self):
         return True
 
     def turn_off(self):
-        self._display.poweroff()
+        from ssd1306 import SSD1306_I2C
+        from machine import I2C, Pin
+        display = SSD1306_I2C(128, 32, I2C(-1, Pin(4), Pin(5)))
+        display.poweroff()
+        from machine import deepsleep
         if DEEPSLEEP:
-            print(DEBUG and 'Going into deepsleep')
-            machine.deepsleep()
+            deepsleep()

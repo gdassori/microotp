@@ -13,11 +13,7 @@
 #
 
 
-
-
 import ucollections
-import utime
-
 
 DateTimeTuple = ucollections.namedtuple("DateTimeTuple", ["year", "month",
     "day", "weekday", "hour", "minute", "second", "millisecond"])
@@ -38,8 +34,13 @@ def _bin2bcd(value):
 
 
 def tuple2seconds(datetime):
-    return utime.mktime((datetime.year, datetime.month, datetime.day,
+    from gc import collect
+    from utime import mktime
+    res = mktime((datetime.year, datetime.month, datetime.day,
         datetime.hour, datetime.minute, datetime.second, datetime.weekday, 0))
+    del mktime
+    collect()
+    return res
 
 
 def seconds2tuple(seconds):
