@@ -6,7 +6,6 @@
 from views import DATETIME_LINE
 from settings import DEEPSLEEP
 from gc import collect as gcc
-from micropython import mem_info # DEBUG MODE
 
 
 class Core():
@@ -30,21 +29,16 @@ class Core():
     def get_otp_tuple(self):
         if not self.jsondata:
             raise ValueError()
-        print('aaaa ', mem_info())
         from otpmanager import OTPManager as OTPM
-        print('bbbb ', mem_info())
+        from utime import sleep
         otp = OTPM(self.jsondata['otp']['rows'][self._current_otp])
-        print('cccc', mem_info())
-        otptuple = (
-            otp.get_alias(),
-            otp.get_code(),
-            otp.get_ttl()
-        )
-        print('dddd', mem_info())
-        del otp, OTPM
-        print('eeee', mem_info())
+        code = otp.get_code()
+        sleep(0.1)
+        alias = otp.get_alias()
+        ttl = otp.get_ttl()
+        otptuple = (alias, code, ttl)
+        del otp, OTPM, sleep
         gcc()
-        print('ffff', mem_info())
         return otptuple
 
     def show(self, display, view):

@@ -19,11 +19,8 @@ class Storage():
             collect()
             return res
         except:
-            if getattr(__name__, 'f', None): del f
-            if getattr(__name__, 'data', None): del data
             del loads
             collect()
-            print('Storage not found')
             storage = dict()
             self.save(storage)
         return storage

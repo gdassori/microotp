@@ -1,85 +1,75 @@
 # MicroPython SSD1306 OLED driver, I2C and SPI interfaces
 
 
-class SSD1306:
-    from micropython import const
-    # register definitions
-    SET_CONTRAST = const(0x81)
-    SET_ENTIRE_ON = const(0xa4)
-    SET_NORM_INV = const(0xa6)
-    SET_DISP = const(0xae)
-    SET_MEM_ADDR = const(0x20)
-    SET_COL_ADDR = const(0x21)
-    SET_PAGE_ADDR = const(0x22)
-    SET_DISP_START_LINE = const(0x40)
-    SET_SEG_REMAP = const(0xa0)
-    SET_MUX_RATIO = const(0xa8)
-    SET_COM_OUT_DIR = const(0xc0)
-    SET_DISP_OFFSET = const(0xd3)
-    SET_COM_PIN_CFG = const(0xda)
-    SET_DISP_CLK_DIV = const(0xd5)
-    SET_PRECHARGE = const(0xd9)
-    SET_VCOM_DESEL = const(0xdb)
-    SET_CHARGE_PUMP = const(0x8d)
-    def __init__(self, width, height, external_vcc):
+class SSD1306_I2C:
+    def __init__(self, width, height, i2c, addr=0x3c, external_vcc=False):
+        self.i2c = i2c
+        self.addr = addr
+        self.temp = bytearray(2)
         self.width = width
         self.height = height
         self.external_vcc = external_vcc
         self.pages = self.height // 8
         self.buffer = bytearray(self.pages * self.width)
-        import framebuf
-        self.framebuf = framebuf.FrameBuffer(self.buffer, self.width, self.height, framebuf.MVLSB)
-        self.poweron()
+        from framebuf import FrameBuffer, MVLSB
+        self.framebuf = FrameBuffer(self.buffer, self.width, self.height, MVLSB)
         self.init_display()
+
+    def write_cmd(self, cmd):
+        self.temp[0] = 0x80 # Co=1, D/C#=0
+        self.temp[1] = cmd
+        self.i2c.writeto(self.addr, self.temp)
+
+    def write_data(self, buf):
+        self.temp[0] = self.addr << 1
+        self.temp[1] = 0x40 # Co=0, D/C#=1
+        self.i2c.start()
+        self.i2c.write(self.temp)
+        self.i2c.write(buf)
+        self.i2c.stop()
 
     def init_display(self):
         for cmd in (
-            SSD1306.SET_DISP | 0x00, # off
-            # address setting
-            SSD1306.SET_MEM_ADDR, 0x00, # horizontal
-            # resolution and layout
-            SSD1306.SET_DISP_START_LINE | 0x00,
-            SSD1306.SET_SEG_REMAP | 0x01, # column addr 127 mapped to SEG0
-            SSD1306.SET_MUX_RATIO, self.height - 1,
-            SSD1306.SET_COM_OUT_DIR | 0x08, # scan from COM[N] to COM0
-            SSD1306.SET_DISP_OFFSET, 0x00,
-            SSD1306.SET_COM_PIN_CFG, 0x02 if self.height == 32 else 0x12,
-            # timing and driving scheme
-            SSD1306.SET_DISP_CLK_DIV, 0x80,
-            SSD1306.SET_PRECHARGE, 0x22 if self.external_vcc else 0xf1,
-            SSD1306.SET_VCOM_DESEL, 0x30, # 0.83*Vcc
-            # display
-            SSD1306.SET_CONTRAST, 0xff, # maximum
-            SSD1306.SET_ENTIRE_ON, # output follows RAM contents
-            SSD1306.SET_NORM_INV, # not inverted
-            # charge pump
-            SSD1306.SET_CHARGE_PUMP, 0x10 if self.external_vcc else 0x14,
-            SSD1306.SET_DISP | 0x01): # on
+                    0xae | 0x00,
+                    0x20, 0x00,
+                    0x40 | 0x00,
+                    0xa0 | 0x01,
+                    0xa8, self.height - 1,
+                    0xc0 | 0x08,
+                    0xd3, 0x00,
+                    0xda, 0x02 if self.height == 32 else 0x12,
+                    0xd5, 0x80,
+                    0xd9, 0x22 if self.external_vcc else 0xf1,
+                    0xdb, 0x30,
+                    0x81, 0xff,
+                    0xa4,
+                    0xa6,
+                    0x8d, 0x10 if self.external_vcc else 0x14,
+                    0xae | 0x01):
             self.write_cmd(cmd)
         self.fill(0)
         self.show()
 
     def poweroff(self):
-        self.write_cmd(SSD1306.SET_DISP | 0x00)
+        self.write_cmd(0xae | 0x00)
 
     def contrast(self, contrast):
-        self.write_cmd(SSD1306.SET_CONTRAST)
+        self.write_cmd(0x81)
         self.write_cmd(contrast)
 
     def invert(self, invert):
-        self.write_cmd(SSD1306.SET_NORM_INV | (invert & 1))
+        self.write_cmd(0xa6 | (invert & 1))
 
     def show(self):
         x0 = 0
         x1 = self.width - 1
         if self.width == 64:
-            # displays with width of 64 pixels are shifted by 32
             x0 += 32
             x1 += 32
-        self.write_cmd(SSD1306.SET_COL_ADDR)
+        self.write_cmd(0x21)
         self.write_cmd(x0)
         self.write_cmd(x1)
-        self.write_cmd(SSD1306.SET_PAGE_ADDR)
+        self.write_cmd(0x22)
         self.write_cmd(0)
         self.write_cmd(self.pages - 1)
         self.write_data(self.buffer)
@@ -95,27 +85,3 @@ class SSD1306:
 
     def text(self, string, x, y, col=1):
         self.framebuf.text(string, x, y, col)
-
-
-class SSD1306_I2C(SSD1306):
-    def __init__(self, width, height, i2c, addr=0x3c, external_vcc=False):
-        self.i2c = i2c
-        self.addr = addr
-        self.temp = bytearray(2)
-        super().__init__(width, height, external_vcc)
-
-    def write_cmd(self, cmd):
-        self.temp[0] = 0x80 # Co=1, D/C#=0
-        self.temp[1] = cmd
-        self.i2c.writeto(self.addr, self.temp)
-
-    def write_data(self, buf):
-        self.temp[0] = self.addr << 1
-        self.temp[1] = 0x40 # Co=0, D/C#=1
-        self.i2c.start()
-        self.i2c.write(self.temp)
-        self.i2c.write(buf)
-        self.i2c.stop()
-
-    def poweron(self):
-        pass

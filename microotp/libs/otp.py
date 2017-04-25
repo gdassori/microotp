@@ -5,13 +5,12 @@
 # MIT License
 #
 #
-#  Inspired by https://github.com/pyotp/pyotp
+# Inspired by https://github.com/pyotp/pyotp
 # Copyright (C) 2011-2016 Mark Percival <m@mdp.im>,
 # Nathan Reynolds <email@nreynolds.co.uk>, and PyOTP contributors
 
 
 from gc import collect
-from micropython import mem_info
 
 
 class OTP(object):
@@ -23,7 +22,7 @@ class OTP(object):
 
         bs = self.byte_secret()
         if input < 0:
-            raise ValueError('input must be positive integer')
+            raise ValueError()
         from hmac import new
         from sha1 import sha1
         _bytestring = self.int_to_bytestring(input)
@@ -86,7 +85,6 @@ class TOTP(OTP):
         return res
 
     def timecode(self, for_time):
-        # Epoch Y0 for embedded is 2000-01-01T00:00
         TIME_OFFSET = 946681200
         for_time += TIME_OFFSET
         return for_time // self.interval

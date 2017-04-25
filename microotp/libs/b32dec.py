@@ -16,11 +16,11 @@ def _bytes_from_decode_data(s):
         try:
             return s.encode('ascii')
         except:
-            raise ValueError('string argument should contain only ASCII characters')
+            raise ValueError()
     elif isinstance(s, (bytes, bytearray)):
         return s
     else:
-        raise TypeError("argument should be bytes or ASCII string, not %s" % s.__class__.__name__)
+        raise TypeError()
 
 def b32decode(s, casefold=False, map01=None):
     _b32alphabet = {
@@ -40,7 +40,7 @@ def b32decode(s, casefold=False, map01=None):
     s = _bytes_from_decode_data(s)
     quanta, leftover = divmod(len(s), 8)
     if leftover:
-        raise Exception('Incorrect padding')
+        raise Exception()
     del leftover
     collect()
     if map01 is not None:
@@ -66,7 +66,7 @@ def b32decode(s, casefold=False, map01=None):
     for c in s:
         val = _b32rev.get(c)
         if val is None:
-            raise Exception('Non-base32 digit found')
+            raise ValueError()
         del val
         collect()
         acc += _b32rev[c] << shift
@@ -92,7 +92,7 @@ def b32decode(s, casefold=False, map01=None):
         last = last[:-4]
     else:
         collect()
-        raise Exception('Incorrect padding')
+        raise Exception()
     parts.append(last)
     res = b''.join(parts)
     del parts, _b32alphabet, _b32rev, last

@@ -4,7 +4,6 @@
 
 from core import Core
 from owner import Owner
-print('Modules import... done')
 
 core = Core()
 owner = Owner(core)
@@ -22,13 +21,6 @@ def run(owner):
     rtc.datetime(dl + [0 for x in range(0, 8 - len(dl))])
     del I2C, Pin, DS3231, rtc, dl
     collect()
-    print('Local RTC sync done')
-    sleep(0.2)
-    from network import WLAN, AP_IF
-    WLAN(AP_IF).active(False)
-    del WLAN, AP_IF
-    collect()
-    print('Network initialized and ensured as off')
     sleep(0.2)
     from gc import collect
     from states import init

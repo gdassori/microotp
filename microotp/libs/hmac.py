@@ -15,6 +15,7 @@ digest_size = None
 class HMAC:
     blocksize = 64
     def __init__(self, key, msg=None, digestmod=None):
+        from utime import sleep
         self.finished = False
         self.digest_bytes = None
         self.hex_bytes = None
@@ -43,8 +44,11 @@ class HMAC:
         trans_5C = bytes((x ^ 0x5C) for x in range(256))
         trans_36 = bytes((x ^ 0x36) for x in range(256))
         self.outer.update(translate(key, trans_5C))
+        del trans_5C
+        collect()
+        sleep(0.1)
         self.inner.update(translate(key, trans_36))
-        del trans_5C, trans_36, key
+        del trans_36, key, sleep
         collect()
         if msg is not None:
             self.update(msg)
