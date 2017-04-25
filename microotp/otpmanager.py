@@ -9,14 +9,6 @@ class OTPManager():
     def __init__(self, otp_data):
         self.otp_data = otp_data
 
-    def get_ttl(self):
-        from utime import time
-        now = time()
-        res = (now + (30 - now % 30)) - now
-        del time, now
-        collect()
-        return res
-
     def get_code(self):
         if self.otp_data.get('type', 'TOTP') == 'OTP':
             from otp import OTP as O

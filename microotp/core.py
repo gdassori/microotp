@@ -6,6 +6,7 @@
 from views import DATETIME_LINE
 from settings import DEEPSLEEP
 from gc import collect as gcc
+from micropython import mem_info
 
 
 class Core():
@@ -13,6 +14,7 @@ class Core():
         self._last_view = dict()
         self._current_otp = 0
         self.jsondata = None
+        self._cached_otp = {}
 
     @property
     def ready(self):
@@ -27,16 +29,31 @@ class Core():
         return self
 
     def get_otp_tuple(self):
+        from utime import time
+        _now = time()
+        if not self._cached_otp or self._cached_otp['e'] < _now:
+            data = self._get_otp_tuple()
+            self._cached_otp = {
+                'd': data,
+                'e': _now + (30 - (_now % 30))
+            }
+        ttl = self._cached_otp['e'] - _now
+        otp_tuple = (self._cached_otp['d'][0], self._cached_otp['d'][1], ttl)
+        del time
+        gcc()
+        print(otp_tuple)
+        return otp_tuple
+
+    def _get_otp_tuple(self):
         if not self.jsondata:
             raise ValueError()
         from otpmanager import OTPManager as OTPM
         from utime import sleep
-        otp = OTPM(self.jsondata['otp']['rows'][self._current_otp])
+        otpdata = self.jsondata['otp']['rows'][self._current_otp]
+        otp = OTPM(otpdata)
         code = otp.get_code()
         sleep(0.1)
-        alias = otp.get_alias()
-        ttl = otp.get_ttl()
-        otptuple = (alias, code, ttl)
+        otptuple = (otpdata['alias'], code, otpdata['frame'])
         del otp, OTPM, sleep
         gcc()
         return otptuple
@@ -44,17 +61,17 @@ class Core():
     def show(self, display, view):
         display.fill(0)
         if view:
-            from views import get_datestring as gds
+            from views import get_datestring
             coords = dict(line0=(0,0), line1=(0,12), line2=(0, 24), line2b=(64,24))
             for line in view:
                 display.text(view[line], coords[line][0], coords[line][1])
-            datestring = gds()
             if DATETIME_LINE not in view:
-                display.text(datestring, coords[DATETIME_LINE][0], coords[DATETIME_LINE][1])
-            del gds, coords, datestring
+                display.text(get_datestring(), coords[DATETIME_LINE][0], coords[DATETIME_LINE][1])
+            del get_datestring, coords
             gcc()
         self._last_view = view
         display.show()
+        print(mem_info())
 
     def setup_mode(self):
         return True

@@ -13,12 +13,7 @@ class Storage():
     def get_or_create(self):
         from json import loads
         try:
-            with open(self.file, 'r') as f:
-                data = f.read()
-            res = loads(data)
-            del loads, f, data
-            collect()
-            return res
+            return self.get()
         except:
             del loads
             collect()
@@ -28,10 +23,13 @@ class Storage():
 
     def get(self):
         from json import loads
+        from ubinascii import unhexlify
         with open(self.file, 'r') as f:
             data = f.read()
         res = loads(data)
-        del loads, f, data
+        for otp in res['otp']['rows']:
+            otp['seed'] = unhexlify(otp['seed'])
+        del loads, f, data, unhexlify
         collect()
         return res
 

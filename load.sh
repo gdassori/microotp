@@ -14,7 +14,6 @@ mpy-cross microotp/views.py -o build/views.mpy
 mpy-cross microotp/wifi.py -o build/wifi.mpy
 mpy-cross microotp/libs/urtc.py -o build/urtc.mpy
 mpy-cross microotp/libs/ssd1306.py -o build/ssd1306.mpy
-mpy-cross microotp/libs/b32dec.py -o build/b32dec.mpy
 mpy-cross microotp/libs/hmac.py -o build/hmac.mpy
 mpy-cross microotp/libs/sha1.py -o build/sha1.mpy
 mpy-cross microotp/libs/otp.py -o build/otp.mpy
@@ -31,7 +30,6 @@ ampy -b 115200 -p /dev/ttyUSB0 put build/views.mpy
 ampy -b 115200 -p /dev/ttyUSB0 put build/wifi.mpy
 ampy -b 115200 -p /dev/ttyUSB0 put build/urtc.mpy
 ampy -b 115200 -p /dev/ttyUSB0 put build/ssd1306.mpy
-ampy -b 115200 -p /dev/ttyUSB0 put build/b32dec.mpy
 ampy -b 115200 -p /dev/ttyUSB0 put build/hmac.mpy
 ampy -b 115200 -p /dev/ttyUSB0 put build/sha1.mpy
 ampy -b 115200 -p /dev/ttyUSB0 put build/otp.mpy

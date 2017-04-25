@@ -20,22 +20,18 @@ class OTP(object):
         self.secret = s
 
     def generate_otp(self, input):
-
-        bs = self.byte_secret()
         if input < 0:
             raise ValueError()
         from hmac import new
         from sha1 import sha1
         _bytestring = self.int_to_bytestring(input)
-        hasher = new(bs, _bytestring, sha1)
-        del sha1, new, bs, _bytestring
+        hasher = new(self.secret, _bytestring, sha1)
+        del sha1, new, self.secret, _bytestring
         collect()
         digest = hasher.digest()
-        from ubinascii import hexlify
-        hexdigest = hexlify(digest)
-        del hexlify, hasher
+        del hasher
         collect()
-        hmac_hash = bytearray(hexdigest)
+        hmac_hash = bytearray(digest)
         offset = hmac_hash[-1] & 0xf
         code = ((hmac_hash[offset] & 0x7f) << 24 |
                 (hmac_hash[offset + 1] & 0xff) << 16 |
@@ -47,16 +43,6 @@ class OTP(object):
         del code, offset, hmac_hash
         collect()
         return str_code
-
-    def byte_secret(self):
-        from ubinascii import unhexlify
-        missing_padding = len(self.secret) % 8
-        if missing_padding != 0:
-            self.secret += '=' * (8 - missing_padding)
-        res = unhexlify(self.secret)
-        del unhexlify, missing_padding
-        collect()
-        return res
 
     @staticmethod
     def int_to_bytestring(i, padding=8):

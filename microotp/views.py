@@ -4,7 +4,7 @@
 
 
 def rem(t,l):
-    return '.' * int((8/t)*l) + '.'
+    return '.' * int((8/t)*l)
 
 
 DATETIME_LINE = 'line0'

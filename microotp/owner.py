@@ -79,16 +79,16 @@ class Owner:
         return self.data_changed
 
     def show_current_otp(self):
-        otp_tuple = self._core.get_otp_tuple()
         start = self._get_time()
-
         from ssd1306 import SSD1306_I2C
         from machine import Pin, I2C
         bus = I2C(-1, Pin(4), Pin(5))
         display = SSD1306_I2C(128, 32, bus)
         from views import Views
         while self._get_time() - start <= OTP_SESSION:
-            self._core.show(display, Views['otp'](otp_tuple))
+            self._core.show(display, Views['otp'](
+                self._core.get_otp_tuple()
+            ))
             self._sleep(0.5)
         del display, SSD1306_I2C, Views, Pin, I2C, bus
         collect()
