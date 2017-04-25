@@ -5,6 +5,7 @@
 from gc import collect
 
 class Storage():
+    # TODO use json only in setup mode, store binary data
     def __init__(self, file):
         self.file = file
         self._intent_prefix = '~'

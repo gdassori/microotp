@@ -14,6 +14,7 @@ from gc import collect
 
 
 class OTP(object):
+    # TODO remove hex data around
     def __init__(self, s, digits=6):
         self.digits = digits
         self.secret = s
